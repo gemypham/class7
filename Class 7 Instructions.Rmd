@@ -2,6 +2,8 @@
 title: "Assignment 3"
 author: "Charles Lang"
 date: "February 13, 2016"
+
+#####GEMY PHAM ########
 ---
 ##In this assignment you will be practising data tidying. You will be using the data we have collected from class and data generated from the instructor wearing a wristband activity tracker.
 
@@ -11,14 +13,15 @@ date: "February 13, 2016"
 We will use two packages: tidyr and dplyr
 ```{r}
 #Insall packages
-install.packages("tidyr", "dplyr")
+#install.packages("tidyr", "dplyr")
+
 #Load packages
 library(tidyr, dplyr)
 ```
 
 ##Upload wide format instructor data (instructor_activity_wide.csv)
 ```{r}
-data_wide <- read.table("~/Documents/NYU/EDCT2550/Assignments/Assignment 3/instructor_activity_wide.csv", sep = ",", header = TRUE)
+data_wide <- read.table("~/Documents/Data Mining Edu/class7-master/instructor_activity_wide.csv", sep = ",", header = TRUE)
 
 #Now view the data you have uploaded and notice how its structure: each variable is a date and each row is a type of measure.
 View(data_wide)
@@ -59,7 +62,10 @@ instructor_data <- spread(data_long, variables, measure)
 ##Now we have a workable instructor data set!The next step is to create a workable student data set. Upload the data "student_activity.csv". View your file once you have uploaded it and then draw on a piece of paper the structure that you want before you attempt to code it. Write the code you use in the chunk below. (Hint: you can do it in one step)
 
 ```{r}
+##Load Student Activity Data 
+student_data <- read.table("~/Documents/Data Mining Edu/class7-master/student_activity.csv", sep = ",", header = TRUE)
 
+student_data <- spread(student_data, variable, measure)
 ```
 
 ##Now that you have workable student data set, subset it to create a data set that only includes data from the second class. 
@@ -75,6 +81,8 @@ student_data_2 <- dplyr::filter(student_data, date == 20160204)
 Now subset the student_activity data frame to create a data frame that only includes students who have sat at table 4. Write your code in the following chunk:
 
 ```{r}
+student_data_3 <- dplyr::filter(student_data, table ==4)
+
 
 ```
 
@@ -90,6 +98,8 @@ Now, refering to the cheat sheet, create a data frame called "instructor_sleep" 
 
 ```{r}
 
+instructor_sleep <- dplyr::select(instructor_data,total_sleep)
+
 ```
 
 Now, we can combine several commands together to create a new variable that contains a grouping. The following code creates a weekly grouping variable called "week" in the instructor data set:
@@ -100,7 +110,7 @@ instructor_data <- dplyr::mutate(instructor_data, week = dplyr::ntile(date, 3))
 
 Create the same variables for the student data frame, write your code in the code chunk below:
 ```{r}
-
+student_data <- dplyr::mutate(student_data, week = dplyr:: ntile(date,3))
 ```
 
 ##Sumaraizing
@@ -117,7 +127,9 @@ student_data %>% dplyr::group_by(date) %>% dplyr::summarise(mean(motivation))
 Create two new data sets using this method. One that sumarizes average motivation for students for each week (student_week) and another than sumarizes "m_active_time" for the instructor per week (instructor_week). Write your code in the following chunk:
 
 ```{r}
+student_week <- student_data %>% dplyr :: group_by(week) %>% dplyr:: summarise(mean(motivation ))
 
+instructor_week <- instructor_data %>% dplyr:: group_by(week) %>% dplyr::summarise(mean(m_active_time))
 ```
 
 ##Merging
@@ -125,12 +137,18 @@ Now we will merge these two data frames using dplyr.
 
 ```{r}
 merge <- dplyr::full_join(instructor_week, student_week, "week")
+
 ```
 
 ##Visualize
 Visualize the relationship between these two variables (mean motivation and mean instructor activity) with the "plot" command and then run a Pearson correlation test (hint: cor.test()). Write the code for the these commands below:
 
 ```{r}
+plot(merge$`mean(m_active_time)`, merge$`mean(motivation)`)
+
+names(merge) <- c("week", "instructor_active_avg", "motivation_avg")
+
+cor.test(merge$motivation_avg, merge$instructor_active_avg)
 
 ```
 
